@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { personalInfo, skills } from '../data/portfolioData'
 import { FaMapMarkerAlt, FaEnvelope, FaPhone } from 'react-icons/fa'
 import { W } from './GlowText'
@@ -9,13 +10,46 @@ const infoCards = [
   { icon: <FaPhone />,        label: 'Phone',    value: personalInfo.phone },
 ]
 
-// ── Single slot-machine reel (mobile only) ──────────────────────
+// ── Single slot-machine reel (desktop only) ──────────────────────
 const allSkills = Object.values(skills).flat()
 const FACE_H    = 44
 
+function usePrefersReducedMotion() {
+  const [prefersReduced, setPrefersReduced] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReduced(mediaQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  return prefersReduced
+}
+
 function MobileReel() {
+  const prefersReducedMotion = usePrefersReducedMotion()
   const count  = allSkills.length
   const radius = Math.round((FACE_H * count) / (2 * Math.PI))
+
+  // Don't render 3D animation on mobile if reduced motion is enabled
+  if (prefersReducedMotion) {
+    return (
+      <div className="flex flex-wrap gap-2 justify-center max-w-xs mx-auto">
+        {allSkills.map(skill => (
+          <span
+            key={skill}
+            className="px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap"
+            style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)', color: '#d1d5db' }}
+          >
+            {skill}
+          </span>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div
@@ -63,6 +97,20 @@ function MobileReel() {
     </div>
   )
 }
+
+export const SectionHeading = ({ title, subtitle }: { title: string; subtitle: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    viewport={{ once: true }}
+    className="text-center"
+  >
+    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2">
+      <W text={subtitle} className="text-cyan-400" /> <W text={title} />
+    </h2>
+  </motion.div>
+)
 
 export default function About() {
   return (
@@ -145,15 +193,5 @@ export default function About() {
         </div>
       </div>
     </section>
-  )
-}
-
-export function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="text-center mb-4">
-      <p className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-2">{subtitle}</p>
-      <h2 className="text-3xl sm:text-4xl font-bold text-white">{title}</h2>
-      <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
-    </div>
   )
 }

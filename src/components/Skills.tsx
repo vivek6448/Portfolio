@@ -1,4 +1,5 @@
 import { motion, type Variants } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { skills } from '../data/portfolioData'
 import { SectionHeading } from './About'
 import { W } from './GlowText'
@@ -33,7 +34,24 @@ const badgeContainer: Variants = {
   },
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReduced, setPrefersReduced] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReduced(mediaQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  return prefersReduced
+}
+
 export default function Skills() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6 bg-white/[0.02]">
       <div className="max-w-5xl mx-auto">
@@ -41,18 +59,18 @@ export default function Skills() {
 
         <motion.div
           className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-10 md:mt-12"
-          initial="hidden"
+          initial={prefersReducedMotion ? 'show' : 'hidden'}
           whileInView="show"
           viewport={{ once: true, amount: 0.1 }}
           variants={{
             hidden: {},
-            show: { transition: { staggerChildren: 0.12 } },
+            show: { transition: { staggerChildren: prefersReducedMotion ? 0 : 0.12 } },
           }}
         >
           {Object.entries(skills).map(([category, items]) => (
             <motion.div
               key={category}
-              variants={cardVariants}
+              variants={prefersReducedMotion ? { hidden: {}, show: {} } : cardVariants}
               className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-colors duration-300"
             >
               {/* Category label */}
@@ -63,16 +81,16 @@ export default function Skills() {
               {/* Badges — building-block drop */}
               <motion.div
                 className="flex flex-wrap gap-2"
-                variants={badgeContainer}
-                initial="hidden"
+                variants={prefersReducedMotion ? { hidden: {}, show: {} } : badgeContainer}
+                initial={prefersReducedMotion ? 'show' : 'hidden'}
                 whileInView="show"
                 viewport={{ once: false }}
               >
                 {items.map(skill => (
                   <motion.span
                     key={skill}
-                    variants={badgeVariants}
-                    whileHover={{
+                    variants={prefersReducedMotion ? { hidden: {}, show: {} } : badgeVariants}
+                    whileHover={prefersReducedMotion ? {} : {
                       scale: 1.1,
                       y: -3,
                       textShadow: '0 0 8px rgba(6,182,212,0.95), 0 0 22px rgba(6,182,212,0.45)',

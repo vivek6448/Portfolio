@@ -1,9 +1,27 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { experiences } from '../data/portfolioData'
 import { SectionHeading } from './About'
 import { W } from './GlowText'
 
+function usePrefersReducedMotion() {
+  const [prefersReduced, setPrefersReduced] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReduced(mediaQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  return prefersReduced
+}
+
 export default function Experience() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
@@ -16,9 +34,9 @@ export default function Experience() {
             {experiences.map((exp, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -30 }}
+                initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: prefersReducedMotion ? 0 : i * 0.15 }}
                 viewport={{ once: true }}
                 className="md:pl-16 relative"
               >
