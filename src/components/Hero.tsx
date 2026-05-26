@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { personalInfo, skills } from '../data/portfolioData'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import { W } from './GlowText'
+import { useEffect, useState } from 'react'
 
 const stats = [
   { value: '4.7+', label: 'Years Exp.' },
@@ -14,6 +15,22 @@ const reel1 = allSkills.filter((_, i) => i % 2 === 0)
 const reel2 = allSkills.filter((_, i) => i % 2 === 1)
 
 const FACE_H = 56
+
+// Detect reduced motion preference
+function usePrefersReducedMotion() {
+  const [prefersReduced, setPrefersReduced] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReduced(mediaQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  return prefersReduced
+}
 
 function SkillReel({ items, duration }: { items: string[]; duration: number }) {
   const count  = items.length
@@ -51,8 +68,13 @@ function SkillReel({ items, duration }: { items: string[]; duration: number }) {
 }
 
 export default function Hero() {
+  const prefersReducedMotion = usePrefersReducedMotion()
   const firstName = personalInfo.name.split(' ').slice(0, 2).join(' ')
   const lastName  = personalInfo.name.split(' ').slice(2).join(' ')
+
+  // Adjust animation settings based on motion preference
+  const animationDuration = prefersReducedMotion ? 0 : 0.6
+  const staggerDelay = prefersReducedMotion ? 0 : 0.1
 
   return (
     <section className="min-h-screen flex items-center px-4 sm:px-6 pt-20 relative overflow-hidden">
@@ -62,20 +84,24 @@ export default function Hero() {
 
         {/* ── Left: Content ── */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: animationDuration }}
           className="flex flex-col items-center md:items-start text-center md:text-left"
         >
           <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: staggerDelay }}
             className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4"
           >
             👋 Hello, I'm
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: staggerDelay * 2 }}
             className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
           >
             {firstName}
@@ -86,14 +112,18 @@ export default function Hero() {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: staggerDelay * 3 }}
             className="text-lg sm:text-xl text-gray-400 mb-2"
           >
             <W text={personalInfo.role} />
           </motion.p>
 
           <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: staggerDelay * 4 }}
             className="text-gray-500 mb-8 max-w-md"
           >
             <W text={personalInfo.tagline} />
@@ -101,7 +131,9 @@ export default function Hero() {
 
           {/* Stats */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: staggerDelay * 5 }}
             className="flex gap-6 sm:gap-10 mb-8"
           >
             {stats.map(stat => (
@@ -114,7 +146,9 @@ export default function Hero() {
 
           {/* CTA Buttons */}
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: staggerDelay * 6 }}
             className="flex gap-3 flex-wrap justify-center md:justify-start"
           >
             <a href={`mailto:${personalInfo.email}`}
@@ -134,9 +168,9 @@ export default function Hero() {
 
         {/* ── Right: Slot Machine (desktop only) ── */}
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: animationDuration, delay: staggerDelay * 3 }}
           className="hidden md:flex flex-col gap-3"
         >
           <p className="text-center text-[10px] text-gray-600 uppercase tracking-[0.2em] mb-1">Tech Stack</p>
@@ -153,11 +187,14 @@ export default function Hero() {
 
       </div>
 
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 text-2xl"
-      >↓</motion.div>
+      {/* Scroll indicator */}
+      {!prefersReducedMotion && (
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 text-2xl"
+        >↓</motion.div>
+      )}
     </section>
   )
 }
