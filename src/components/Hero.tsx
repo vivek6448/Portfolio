@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { personalInfo, skills } from '../data/portfolioData'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import { W } from './GlowText'
-import { useEffect, useState } from 'react'
+import { useRef } from 'react'
 
 const stats = [
   { value: '4.7+', label: 'Years Exp.' },
@@ -16,28 +16,14 @@ const reel2 = allSkills.filter((_, i) => i % 2 === 1)
 
 const FACE_H = 56
 
-// Detect reduced motion preference
-function usePrefersReducedMotion() {
-  const [prefersReduced, setPrefersReduced] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReduced(mediaQuery.matches)
-
-    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
-
-  return prefersReduced
-}
-
 function SkillReel({ items, duration }: { items: string[]; duration: number }) {
   const count  = items.length
   const radius = Math.round((FACE_H * count) / (2 * Math.PI))
+  const ref = useRef(null)
+  const isInView = useInView(ref, { amount: 0.1 })
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ height: 420, perspective: '800px' }}>
+    <div ref={ref} className="relative flex-1 overflow-hidden" style={{ height: 420, perspective: '800px' }}>
       <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#0a0a0f] via-[#0a0a0f]/70 to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/70 to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 z-10 pointer-events-none"
@@ -45,7 +31,7 @@ function SkillReel({ items, duration }: { items: string[]; duration: number }) {
       />
       <div className="h-full flex items-center justify-center">
         <motion.div
-          animate={{ rotateX: [0, -360] }}
+          animate={isInView ? { rotateX: [0, -360] } : {}}
           transition={{ duration, repeat: Infinity, ease: 'linear' }}
           style={{ transformStyle: 'preserve-3d', position: 'relative', height: FACE_H, width: '100%' }}
         >
@@ -67,14 +53,11 @@ function SkillReel({ items, duration }: { items: string[]; duration: number }) {
   )
 }
 
+const STAGGER = 0.1
+
 export default function Hero() {
-  const prefersReducedMotion = usePrefersReducedMotion()
   const firstName = personalInfo.name.split(' ').slice(0, 2).join(' ')
   const lastName  = personalInfo.name.split(' ').slice(2).join(' ')
-
-  // Adjust animation settings based on motion preference
-  const animationDuration = prefersReducedMotion ? 0 : 0.6
-  const staggerDelay = prefersReducedMotion ? 0 : 0.1
 
   return (
     <section className="min-h-screen flex items-center px-4 sm:px-6 pt-20 relative overflow-hidden">
@@ -83,58 +66,43 @@ export default function Hero() {
       <div className="max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-8 md:gap-16 items-center relative z-10">
 
         {/* ── Left: Content ── */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: animationDuration }}
-          className="flex flex-col items-center md:items-start text-center md:text-left"
-        >
-          <motion.p
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: staggerDelay }}
-            className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4"
+        <div className="flex flex-col items-center md:items-start text-center md:text-left animate-fade-in-left">
+          <p
+            className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 animate-fade-in-up"
+            style={{ animationDelay: `${STAGGER}s` }}
           >
             👋 Hello, I'm
-          </motion.p>
+          </p>
 
-          <motion.h1
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: staggerDelay * 2 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight"
+          <h1
+            className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in-up"
+            style={{ animationDelay: `${STAGGER * 2}s` }}
           >
             {firstName}
             <br />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
               {lastName}
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: staggerDelay * 3 }}
-            className="text-lg sm:text-xl text-gray-400 mb-2"
+          <p
+            className="text-lg sm:text-xl text-gray-400 mb-2 animate-fade-in-up"
+            style={{ animationDelay: `${STAGGER * 3}s` }}
           >
             <W text={personalInfo.role} />
-          </motion.p>
+          </p>
 
-          <motion.p
-            initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: staggerDelay * 4 }}
-            className="text-gray-500 mb-8 max-w-md"
+          <p
+            className="text-gray-500 mb-8 max-w-md animate-fade-in"
+            style={{ animationDelay: `${STAGGER * 4}s` }}
           >
             <W text={personalInfo.tagline} />
-          </motion.p>
+          </p>
 
           {/* Stats */}
-          <motion.div
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: staggerDelay * 5 }}
-            className="flex gap-6 sm:gap-10 mb-8"
+          <div
+            className="flex gap-6 sm:gap-10 mb-8 animate-fade-in-up"
+            style={{ animationDelay: `${STAGGER * 5}s` }}
           >
             {stats.map(stat => (
               <div key={stat.label}>
@@ -142,14 +110,12 @@ export default function Hero() {
                 <div className="text-xs text-gray-500 mt-1"><W text={stat.label} /></div>
               </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* CTA Buttons */}
-          <motion.div
-            initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: staggerDelay * 6 }}
-            className="flex gap-3 flex-wrap justify-center md:justify-start"
+          <div
+            className="flex gap-3 flex-wrap justify-center md:justify-start animate-fade-in"
+            style={{ animationDelay: `${STAGGER * 6}s` }}
           >
             <a href={`mailto:${personalInfo.email}`}
               className="px-6 sm:px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:scale-105 transition-transform duration-300 shadow-lg shadow-cyan-500/25 text-sm sm:text-base">
@@ -163,15 +129,13 @@ export default function Hero() {
               className="px-5 sm:px-6 py-3 rounded-full border border-white/20 text-white hover:border-blue-400 hover:text-blue-400 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base">
               <FaLinkedin /> LinkedIn
             </a>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* ── Right: Slot Machine (desktop only) ── */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: animationDuration, delay: staggerDelay * 3 }}
-          className="hidden md:flex flex-col gap-3"
+        <div
+          className="hidden md:flex flex-col gap-3 animate-fade-in-right"
+          style={{ animationDelay: `${STAGGER * 3}s` }}
         >
           <p className="text-center text-[10px] text-gray-600 uppercase tracking-[0.2em] mb-1">Tech Stack</p>
           <div className="relative rounded-2xl border border-white/8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.015)' }}>
@@ -183,18 +147,12 @@ export default function Hero() {
               <SkillReel items={reel2} duration={27} />
             </div>
           </div>
-        </motion.div>
+        </div>
 
       </div>
 
       {/* Scroll indicator */}
-      {!prefersReducedMotion && (
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 text-2xl"
-        >↓</motion.div>
-      )}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 text-2xl animate-bounce-y">↓</div>
     </section>
   )
 }
