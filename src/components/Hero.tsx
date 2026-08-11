@@ -1,114 +1,11 @@
-import { motion, useMotionTemplate, useMotionValue, type Variants } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { motion, type Variants } from 'framer-motion'
 import { personalInfo, skills } from '../data/portfolioData'
-import { W, useReducedMotion as useHoverDisabled } from './GlowText'
+import { W } from './GlowText'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import DecryptedText from './DecryptedText'
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-}
-
-const charVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-}
-
-function AnimatedLine({ text, delayChildren, reduced }: { text: string; delayChildren: number; reduced: boolean }) {
-  const chars = Array.from(text)
-  const hoverDisabled = useHoverDisabled()
-  // Touch devices (phone/iPad) get the same instant reveal as prefers-reduced-motion —
-  // the per-character blur/stagger intro adds ~1.2s that's pure delay with no payoff
-  // on a device that can't hover anyway.
-  const instant = reduced || hoverDisabled
-  const lineRef = useRef<HTMLSpanElement>(null)
-  const [hovering, setHovering] = useState(false)
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const maskImage = useMotionTemplate`radial-gradient(120px circle at ${mouseX}px ${mouseY}px, black 55%, transparent 100%)`
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLSpanElement>) => {
-    const rect = lineRef.current?.getBoundingClientRect()
-    if (!rect) return
-    mouseX.set(e.clientX - rect.left)
-    mouseY.set(e.clientY - rect.top)
-  }
-
-  return (
-    <motion.span
-      className="block"
-      initial={instant ? { filter: 'blur(0px)', scale: 1 } : { filter: 'blur(16px)', scale: 1.04 }}
-      animate={{ filter: 'blur(0px)', scale: 1 }}
-      transition={{ duration: instant ? 0 : 1.1, delay: instant ? 0 : delayChildren, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <motion.span
-        ref={lineRef}
-        className="relative block"
-        onMouseMove={hoverDisabled ? undefined : handleMouseMove}
-        onMouseEnter={() => !hoverDisabled && setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
-        initial={instant ? 'show' : 'hidden'}
-        animate="show"
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: instant ? 0 : 0.03, delayChildren: instant ? 0 : delayChildren } },
-        }}
-      >
-        {/* warm glow that tracks the cursor, blending into the page background */}
-        {!hoverDisabled && (
-          <motion.span
-            aria-hidden
-            className="pointer-events-none absolute -z-10 h-64 w-64 rounded-full blur-3xl"
-            style={{
-              left: mouseX,
-              top: mouseY,
-              translateX: '-50%',
-              translateY: '-50%',
-              background:
-                'radial-gradient(circle, rgba(226,69,43,0.6) 0%, rgba(255,122,92,0.25) 45%, rgba(226,69,43,0) 75%)',
-              opacity: hovering ? 1 : 0,
-              transition: 'opacity 0.3s ease-out',
-            }}
-          />
-        )}
-
-        {/* hollow outline text — the resting state */}
-        <span
-          className={
-            hoverDisabled
-              ? 'block text-white'
-              : 'block text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.4)]'
-          }
-        >
-          {chars.map((ch, i) => (
-            <motion.span key={i} variants={charVariants} className="inline-block">
-              {ch === ' ' ? ' ' : ch}
-            </motion.span>
-          ))}
-        </span>
-
-        {/* solid fill, revealed only in a lens around the cursor — split into the
-            same per-character spans as the outline layer so kerning matches exactly */}
-        {!hoverDisabled && (
-          <motion.span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 block font-normal text-white"
-            style={{
-              WebkitMaskImage: maskImage,
-              maskImage,
-              opacity: hovering ? 1 : 0,
-              transition: 'opacity 0.2s ease-out',
-            }}
-          >
-            {chars.map((ch, i) => (
-              <span key={i} className="inline-block">
-                {ch === ' ' ? ' ' : ch}
-              </span>
-            ))}
-          </motion.span>
-        )}
-      </motion.span>
-    </motion.span>
-  )
 }
 
 const fadeUp: Variants = {
@@ -150,7 +47,19 @@ export default function Hero() {
       <div className="relative z-10 max-w-[1400px] mx-auto w-full">
         {/* Big name */}
         <h1 className="font-display font-light uppercase leading-[0.92] tracking-wide whitespace-nowrap text-[clamp(1.75rem,6.4vw,5.5rem)] mb-8">
-          <AnimatedLine text={personalInfo.name} delayChildren={0.15} reduced={reduced} />
+          {reduced ? (
+            personalInfo.name
+          ) : (
+            <DecryptedText
+              text={personalInfo.name}
+              animateOn="view"
+              sequential
+              revealDirection="start"
+              speed={40}
+              className="text-white"
+              encryptedClassName="text-gray-600"
+            />
+          )}
         </h1>
 
         {/* Role / value proposition */}

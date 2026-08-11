@@ -1,10 +1,16 @@
-import { lazy, Suspense, useState } from 'react'
-import Navbar from './components/Navbar'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import Hero from './components/Hero'
 import Footer from './components/Footer'
 import Preloader from './components/Preloader'
 
-// Lazy load sections below the fold
+// Navbar pulls in gsap (via StaggeredMenu) — lazy-load it like the below-fold
+// sections so gsap doesn't land in the main bundle. No fallback needed since
+// it's a fixed-position overlay with no layout space to reserve. The import
+// is also kicked off eagerly on mount (below) so the chunk is warm by the
+// time it's actually rendered, instead of only starting to fetch once the
+// preloader finishes.
+const loadNavbar = () => import('./components/Navbar')
+const Navbar = lazy(loadNavbar)
 const Philosophy = lazy(() => import('./components/Philosophy'))
 const About = lazy(() => import('./components/About'))
 const Skills = lazy(() => import('./components/Skills'))
@@ -20,12 +26,18 @@ const SectionSkeleton = () => (
 function App() {
   const [isLoading, setIsLoading] = useState(true)
 
+  useEffect(() => {
+    loadNavbar()
+  }, [])
+
   return (
     <div className="bg-bg text-white font-sans">
       <Preloader onDone={() => setIsLoading(false)} />
       {!isLoading && (
         <>
-          <Navbar />
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
           <main>
             <section id="hero"><Hero /></section>
             <Suspense fallback={<SectionSkeleton />}>

@@ -20,9 +20,32 @@
   --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-html, body {
+/* overflow-x:hidden on BOTH html and body triggers the CSS quirk that
+   forces the paired overflow-y to "auto" on whichever elements have it
+   (per spec: if overflow-x/y differ and one is "visible", it's computed
+   as "auto" instead) — which breaks position:sticky for all descendants,
+   since sticky then resolves against that auto-overflow box instead of
+   the true viewport. Keeping it on html only avoids the pairing. */
+html {
   overflow-x: hidden;
+}
+
+@media not (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
   background-color: var(--color-bg);
+}
+
+/* StaggeredMenu's header floats transparently over every section, including
+   the bright background image in Philosophy — a shadow keeps the logo/toggle
+   readable without needing scroll-tracked background state. */
+.sm-logo-text,
+.sm-toggle {
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 .no-scrollbar {
