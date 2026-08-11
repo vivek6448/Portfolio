@@ -1,27 +1,16 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice'
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  return isMobile
-}
-
-// Hover glow doesn't apply on mobile (no hover) or when the user prefers reduced motion.
-// Both checks use a lazy useState initializer so the correct value is known on first
-// render — avoiding a mount-as-animated / remount-as-plain flash on mobile.
+// Hover glow doesn't apply on touch devices (no hover — this correctly covers
+// iPad too, unlike a viewport-width check) or when the user prefers reduced
+// motion. Both checks use a lazy useState initializer so the correct value is
+// known on first render — avoiding a mount-as-animated / remount-as-plain flash.
 export function useReducedMotion() {
   const prefersReducedMotion = usePrefersReducedMotion()
-  const isMobile = useIsMobile()
+  const isTouchDevice = useIsTouchDevice()
 
-  return prefersReducedMotion || isMobile
+  return prefersReducedMotion || isTouchDevice
 }
 
 // Single word with glow on hover

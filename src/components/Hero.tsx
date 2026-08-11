@@ -16,6 +16,10 @@ const charVariants: Variants = {
 function AnimatedLine({ text, delayChildren, reduced }: { text: string; delayChildren: number; reduced: boolean }) {
   const chars = Array.from(text)
   const hoverDisabled = useHoverDisabled()
+  // Touch devices (phone/iPad) get the same instant reveal as prefers-reduced-motion —
+  // the per-character blur/stagger intro adds ~1.2s that's pure delay with no payoff
+  // on a device that can't hover anyway.
+  const instant = reduced || hoverDisabled
   const lineRef = useRef<HTMLSpanElement>(null)
   const [hovering, setHovering] = useState(false)
   const mouseX = useMotionValue(0)
@@ -32,9 +36,9 @@ function AnimatedLine({ text, delayChildren, reduced }: { text: string; delayChi
   return (
     <motion.span
       className="block"
-      initial={reduced ? { filter: 'blur(0px)', scale: 1 } : { filter: 'blur(16px)', scale: 1.04 }}
+      initial={instant ? { filter: 'blur(0px)', scale: 1 } : { filter: 'blur(16px)', scale: 1.04 }}
       animate={{ filter: 'blur(0px)', scale: 1 }}
-      transition={{ duration: reduced ? 0 : 1.1, delay: reduced ? 0 : delayChildren, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: instant ? 0 : 1.1, delay: instant ? 0 : delayChildren, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.span
         ref={lineRef}
@@ -42,11 +46,11 @@ function AnimatedLine({ text, delayChildren, reduced }: { text: string; delayChi
         onMouseMove={hoverDisabled ? undefined : handleMouseMove}
         onMouseEnter={() => !hoverDisabled && setHovering(true)}
         onMouseLeave={() => setHovering(false)}
-        initial={reduced ? 'show' : 'hidden'}
+        initial={instant ? 'show' : 'hidden'}
         animate="show"
         variants={{
           hidden: {},
-          show: { transition: { staggerChildren: reduced ? 0 : 0.03, delayChildren: reduced ? 0 : delayChildren } },
+          show: { transition: { staggerChildren: instant ? 0 : 0.03, delayChildren: instant ? 0 : delayChildren } },
         }}
       >
         {/* warm glow that tracks the cursor, blending into the page background */}

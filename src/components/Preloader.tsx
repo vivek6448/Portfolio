@@ -2,10 +2,14 @@ import { AnimatePresence, animate, motion, useMotionValue, useTransform } from '
 import { useEffect, useState } from 'react'
 
 export default function Preloader({ onDone }: { onDone: () => void }) {
-  // Read synchronously on first render so reduced-motion users never see a
-  // single frame of the preloader before it's skipped.
+  // Read synchronously on first render so reduced-motion/touch users never see
+  // a single frame of the preloader before it's skipped. Touch devices (phone
+  // and iPad — (hover: none) catches both regardless of screen size) skip the
+  // ~3.6s animated counter entirely so the site opens immediately.
   const [skip] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    () =>
+      typeof window !== 'undefined' &&
+      (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.matchMedia('(hover: none)').matches)
   )
   const [visible, setVisible] = useState(!skip)
   const [display, setDisplay] = useState(0)
