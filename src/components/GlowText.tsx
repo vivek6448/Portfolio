@@ -1,26 +1,25 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 
-// Check if user prefers reduced motion or is on mobile
-function useReducedMotion() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(mediaQuery.matches)
-    setIsMobile(window.innerWidth < 768)
-
-    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
     const handleResize = () => setIsMobile(window.innerWidth < 768)
-
-    mediaQuery.addEventListener('change', handleChange)
     window.addEventListener('resize', handleResize)
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange)
-      window.removeEventListener('resize', handleResize)
-    }
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  return isMobile
+}
+
+// Hover glow doesn't apply on mobile (no hover) or when the user prefers reduced motion.
+// Both checks use a lazy useState initializer so the correct value is known on first
+// render — avoiding a mount-as-animated / remount-as-plain flash on mobile.
+export function useReducedMotion() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const isMobile = useIsMobile()
 
   return prefersReducedMotion || isMobile
 }
@@ -44,8 +43,8 @@ export function GlowWord({
     <motion.span
       className={`inline-block cursor-default mr-[0.3em] ${className}`}
       whileHover={{
-        textShadow: '0 0 8px rgba(6,182,212,0.95), 0 0 22px rgba(6,182,212,0.45)',
-        color: '#a5f3fc',
+        textShadow: '0 0 8px rgba(226,69,43,0.95), 0 0 22px rgba(226,69,43,0.45)',
+        color: '#ff9d85',
       }}
       transition={{ duration: 0.15 }}
     >

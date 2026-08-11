@@ -1,8 +1,8 @@
 import { motion, type Variants } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { skills } from '../data/portfolioData'
 import { SectionHeading } from './About'
 import { W } from './GlowText'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 
 // Card drops in like a block being placed
 const cardVariants: Variants = {
@@ -34,21 +34,6 @@ const badgeContainer: Variants = {
   },
 }
 
-function usePrefersReducedMotion() {
-  const [prefersReduced, setPrefersReduced] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReduced(mediaQuery.matches)
-
-    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
-
-  return prefersReduced
-}
-
 export default function Skills() {
   const prefersReducedMotion = usePrefersReducedMotion()
 
@@ -71,10 +56,10 @@ export default function Skills() {
             <motion.div
               key={category}
               variants={prefersReducedMotion ? { hidden: {}, show: {} } : cardVariants}
-              className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-colors duration-300"
+              className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 transition-colors duration-300"
             >
               {/* Category label */}
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">
+              <h3 className="text-accent font-semibold text-sm uppercase tracking-wider mb-4">
                 <W text={category} />
               </h3>
 
@@ -84,7 +69,7 @@ export default function Skills() {
                 variants={prefersReducedMotion ? { hidden: {}, show: {} } : badgeContainer}
                 initial={prefersReducedMotion ? 'show' : 'hidden'}
                 whileInView="show"
-                viewport={{ once: false }}
+                viewport={{ once: true }}
               >
                 {items.map(skill => (
                   <motion.span
@@ -93,10 +78,10 @@ export default function Skills() {
                     whileHover={prefersReducedMotion ? {} : {
                       scale: 1.1,
                       y: -3,
-                      textShadow: '0 0 8px rgba(6,182,212,0.95), 0 0 22px rgba(6,182,212,0.45)',
-                      color: '#a5f3fc',
+                      textShadow: '0 0 8px rgba(226,69,43,0.95), 0 0 22px rgba(226,69,43,0.45)',
+                      color: '#ff9d85',
                     }}
-                    className="px-3 py-1 rounded-full text-xs bg-white/10 text-gray-300 border border-white/10 hover:border-cyan-400/50 transition-colors duration-200 cursor-default"
+                    className="px-3 py-1 rounded-full text-xs bg-white/10 text-gray-300 border border-white/10 hover:border-accent/50 transition-colors duration-200 cursor-default"
                   >
                     {skill}
                   </motion.span>

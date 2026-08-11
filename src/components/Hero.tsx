@@ -1,158 +1,229 @@
-import { motion, useInView } from 'framer-motion'
+import { motion, useMotionTemplate, useMotionValue, type Variants } from 'framer-motion'
+import { useRef, useState } from 'react'
 import { personalInfo, skills } from '../data/portfolioData'
-import { FaGithub, FaLinkedin } from 'react-icons/fa'
-import { W } from './GlowText'
-import { useRef } from 'react'
+import { W, useReducedMotion as useHoverDisabled } from './GlowText'
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 
-const stats = [
-  { value: '4.7+', label: 'Years Exp.' },
-  { value: '2',    label: 'Companies' },
-  { value: '10+',  label: 'Projects' },
-]
+function scrollToId(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
 
-const allSkills = Object.values(skills).flat()
-const reel1 = allSkills.filter((_, i) => i % 2 === 0)
-const reel2 = allSkills.filter((_, i) => i % 2 === 1)
+const charVariants: Variants = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+}
 
-const FACE_H = 56
+function AnimatedLine({ text, delayChildren, reduced }: { text: string; delayChildren: number; reduced: boolean }) {
+  const chars = Array.from(text)
+  const hoverDisabled = useHoverDisabled()
+  const lineRef = useRef<HTMLSpanElement>(null)
+  const [hovering, setHovering] = useState(false)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const maskImage = useMotionTemplate`radial-gradient(120px circle at ${mouseX}px ${mouseY}px, black 55%, transparent 100%)`
 
-function SkillReel({ items, duration }: { items: string[]; duration: number }) {
-  const count  = items.length
-  const radius = Math.round((FACE_H * count) / (2 * Math.PI))
-  const ref = useRef(null)
-  const isInView = useInView(ref, { amount: 0.1 })
+  const handleMouseMove = (e: React.MouseEvent<HTMLSpanElement>) => {
+    const rect = lineRef.current?.getBoundingClientRect()
+    if (!rect) return
+    mouseX.set(e.clientX - rect.left)
+    mouseY.set(e.clientY - rect.top)
+  }
 
   return (
-    <div ref={ref} className="relative flex-1 overflow-hidden" style={{ height: 420, perspective: '800px' }}>
-      <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#0a0a0f] via-[#0a0a0f]/70 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/70 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 z-10 pointer-events-none"
-        style={{ height: FACE_H, borderTop: '1px solid rgba(6,182,212,0.3)', borderBottom: '1px solid rgba(6,182,212,0.3)', background: 'rgba(6,182,212,0.03)' }}
-      />
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          animate={isInView ? { rotateX: [0, -360] } : {}}
-          transition={{ duration, repeat: Infinity, ease: 'linear' }}
-          style={{ transformStyle: 'preserve-3d', position: 'relative', height: FACE_H, width: '100%' }}
+    <motion.span
+      className="block"
+      initial={reduced ? { filter: 'blur(0px)', scale: 1 } : { filter: 'blur(16px)', scale: 1.04 }}
+      animate={{ filter: 'blur(0px)', scale: 1 }}
+      transition={{ duration: reduced ? 0 : 1.1, delay: reduced ? 0 : delayChildren, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <motion.span
+        ref={lineRef}
+        className="relative block"
+        onMouseMove={hoverDisabled ? undefined : handleMouseMove}
+        onMouseEnter={() => !hoverDisabled && setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        initial={reduced ? 'show' : 'hidden'}
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: reduced ? 0 : 0.03, delayChildren: reduced ? 0 : delayChildren } },
+        }}
+      >
+        {/* warm glow that tracks the cursor, blending into the page background */}
+        {!hoverDisabled && (
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute -z-10 h-64 w-64 rounded-full blur-3xl"
+            style={{
+              left: mouseX,
+              top: mouseY,
+              translateX: '-50%',
+              translateY: '-50%',
+              background:
+                'radial-gradient(circle, rgba(226,69,43,0.6) 0%, rgba(255,122,92,0.25) 45%, rgba(226,69,43,0) 75%)',
+              opacity: hovering ? 1 : 0,
+              transition: 'opacity 0.3s ease-out',
+            }}
+          />
+        )}
+
+        {/* hollow outline text — the resting state */}
+        <span
+          className={
+            hoverDisabled
+              ? 'block text-white'
+              : 'block text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.4)]'
+          }
         >
-          {items.map((skill, i) => (
-            <div
-              key={skill + i}
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ transform: `rotateX(${(360 / count) * i}deg) translateZ(${radius}px)`, backfaceVisibility: 'hidden', height: FACE_H }}
-            >
-              <span className="px-3 py-1 rounded-full text-[11px] font-medium border whitespace-nowrap"
-                style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)', color: '#d1d5db' }}>
-                {skill}
-              </span>
-            </div>
+          {chars.map((ch, i) => (
+            <motion.span key={i} variants={charVariants} className="inline-block">
+              {ch === ' ' ? ' ' : ch}
+            </motion.span>
           ))}
-        </motion.div>
-      </div>
-    </div>
+        </span>
+
+        {/* solid fill, revealed only in a lens around the cursor — split into the
+            same per-character spans as the outline layer so kerning matches exactly */}
+        {!hoverDisabled && (
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 block font-normal text-white"
+            style={{
+              WebkitMaskImage: maskImage,
+              maskImage,
+              opacity: hovering ? 1 : 0,
+              transition: 'opacity 0.2s ease-out',
+            }}
+          >
+            {chars.map((ch, i) => (
+              <span key={i} className="inline-block">
+                {ch === ' ' ? ' ' : ch}
+              </span>
+            ))}
+          </motion.span>
+        )}
+      </motion.span>
+    </motion.span>
   )
 }
 
-const STAGGER = 0.1
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+}
+
+const allSkills = Object.values(skills).flat()
+const skillsMid = Math.ceil(allSkills.length / 2)
+const skillsRowA = allSkills.slice(0, skillsMid)
+const skillsRowB = allSkills.slice(skillsMid)
 
 export default function Hero() {
-  const firstName = personalInfo.name.split(' ').slice(0, 2).join(' ')
-  const lastName  = personalInfo.name.split(' ').slice(2).join(' ')
+  const reduced = usePrefersReducedMotion()
 
   return (
-    <section className="min-h-screen flex items-center px-4 sm:px-6 pt-20 relative overflow-hidden">
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <section className="relative min-h-screen flex flex-col justify-end overflow-hidden px-4 sm:px-6 lg:px-10 pt-32 sm:pt-36 pb-28 md:pb-36">
+      {/* Glow blob — flares bright on mount, then settles to an ambient level */}
+      <motion.div
+        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[70vw] h-[70vw] max-w-[700px] max-h-[700px] bg-accent rounded-full blur-[140px]"
+        initial={reduced ? { opacity: 0.35, scale: 1 } : { opacity: 0, scale: 0.55 }}
+        animate={reduced ? { opacity: 0.35, scale: 1 } : { opacity: [0, 1, 0.35], scale: [0.55, 1.2, 1] }}
+        transition={reduced ? { duration: 0 } : { duration: 1.8, times: [0, 0.4, 1], ease: [0.16, 1, 0.3, 1] }}
+      />
 
-      <div className="max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-8 md:gap-16 items-center relative z-10">
+      {/* Bottom vignette so the glow eases into the base background instead of hard-cutting at the section boundary */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 sm:h-80 bg-gradient-to-b from-transparent to-bg" />
 
-        {/* ── Left: Content ── */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left animate-fade-in-left">
-          <p
-            className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 animate-fade-in-up"
-            style={{ animationDelay: `${STAGGER}s` }}
-          >
-            👋 Hello, I'm
-          </p>
+      {/* Location / availability — pinned under the navbar */}
+      <motion.p
+        initial={reduced ? 'show' : 'hidden'}
+        animate="show"
+        variants={fadeUp}
+        className="absolute top-32 sm:top-36 left-4 sm:left-6 lg:left-10 z-10 text-accent text-xs sm:text-sm font-medium tracking-[0.3em] uppercase"
+      >
+        — {personalInfo.location} · Available for work
+      </motion.p>
 
-          <h1
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in-up"
-            style={{ animationDelay: `${STAGGER * 2}s` }}
-          >
-            {firstName}
-            <br />
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-              {lastName}
-            </span>
-          </h1>
+      <div className="relative z-10 max-w-[1400px] mx-auto w-full">
+        {/* Big name */}
+        <h1 className="font-display font-light uppercase leading-[0.92] tracking-wide whitespace-nowrap text-[clamp(1.75rem,6.4vw,5.5rem)] mb-8">
+          <AnimatedLine text={personalInfo.name} delayChildren={0.15} reduced={reduced} />
+        </h1>
 
-          <p
-            className="text-lg sm:text-xl text-gray-400 mb-2 animate-fade-in-up"
-            style={{ animationDelay: `${STAGGER * 3}s` }}
-          >
-            <W text={personalInfo.role} />
-          </p>
-
-          <p
-            className="text-gray-500 mb-8 max-w-md animate-fade-in"
-            style={{ animationDelay: `${STAGGER * 4}s` }}
-          >
-            <W text={personalInfo.tagline} />
-          </p>
-
-          {/* Stats */}
-          <div
-            className="flex gap-6 sm:gap-10 mb-8 animate-fade-in-up"
-            style={{ animationDelay: `${STAGGER * 5}s` }}
-          >
-            {stats.map(stat => (
-              <div key={stat.label}>
-                <div className="text-2xl sm:text-3xl font-bold text-cyan-400"><W text={stat.value} /></div>
-                <div className="text-xs text-gray-500 mt-1"><W text={stat.label} /></div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Buttons */}
-          <div
-            className="flex gap-3 flex-wrap justify-center md:justify-start animate-fade-in"
-            style={{ animationDelay: `${STAGGER * 6}s` }}
-          >
-            <a href={`mailto:${personalInfo.email}`}
-              className="px-6 sm:px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:scale-105 transition-transform duration-300 shadow-lg shadow-cyan-500/25 text-sm sm:text-base">
-              {personalInfo.email}
-            </a>
-            <a href={personalInfo.github} target="_blank" rel="noreferrer"
-              className="px-5 sm:px-6 py-3 rounded-full border border-white/20 text-white hover:border-cyan-400 hover:text-cyan-400 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base">
-              <FaGithub /> GitHub
-            </a>
-            <a href={personalInfo.linkedin} target="_blank" rel="noreferrer"
-              className="px-5 sm:px-6 py-3 rounded-full border border-white/20 text-white hover:border-blue-400 hover:text-blue-400 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base">
-              <FaLinkedin /> LinkedIn
-            </a>
-          </div>
-        </div>
-
-        {/* ── Right: Slot Machine (desktop only) ── */}
-        <div
-          className="hidden md:flex flex-col gap-3 animate-fade-in-right"
-          style={{ animationDelay: `${STAGGER * 3}s` }}
+        {/* Role / value proposition */}
+        <motion.p
+          initial={reduced ? 'show' : 'hidden'}
+          animate="show"
+          variants={fadeUp}
+          transition={{ delay: reduced ? 0 : 0.6 }}
+          className="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl"
         >
-          <p className="text-center text-[10px] text-gray-600 uppercase tracking-[0.2em] mb-1">Tech Stack</p>
-          <div className="relative rounded-2xl border border-white/8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.015)' }}>
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-            <div className="absolute inset-y-0 left-1/2 w-px bg-white/5" />
-            <div className="flex px-4 py-2 gap-4">
-              <SkillReel items={reel1} duration={20} />
-              <SkillReel items={reel2} duration={27} />
-            </div>
-          </div>
-        </div>
-
+          <W text={personalInfo.role} className="text-white" />
+          <span className="text-gray-600 mr-[0.3em]">—</span>
+          {personalInfo.tagline}
+        </motion.p>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 text-2xl animate-bounce-y">↓</div>
+      {/* Skills ticker — two rows scrolling in opposite directions, full viewport width */}
+      <motion.div
+        initial={reduced ? 'show' : 'hidden'}
+        animate="show"
+        variants={fadeUp}
+        transition={{ delay: reduced ? 0 : 0.75 }}
+        className="relative z-10 mt-12 sm:mt-14 -mx-4 sm:-mx-6 lg:-mx-10 space-y-3"
+      >
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+          <div className="flex w-max animate-marquee gap-3 whitespace-nowrap">
+            {[...skillsRowA, ...skillsRowA].map((skill, i) => (
+              <span
+                key={i}
+                className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs sm:text-sm text-gray-300"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+          <div className="flex w-max animate-marquee-reverse gap-3 whitespace-nowrap">
+            {[...skillsRowB, ...skillsRowB].map((skill, i) => (
+              <span
+                key={i}
+                className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs sm:text-sm text-gray-300"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* CTA cluster */}
+      <motion.div
+        initial={reduced ? 'show' : 'hidden'}
+        animate="show"
+        variants={fadeUp}
+        transition={{ delay: reduced ? 0 : 0.8 }}
+        className="relative z-10 mt-10 flex items-center gap-6 md:absolute md:mt-0 md:bottom-12 md:right-6 lg:right-10"
+      >
+        <button
+          onClick={() => scrollToId('projects')}
+          className="flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-accent hover:border-accent/60 hover:bg-accent/10 hover:text-accent-soft transition-colors text-sm font-medium tracking-wide"
+        >
+          View Projects <span aria-hidden>↗</span>
+        </button>
+        <button
+          onClick={() => scrollToId('contact')}
+          className="flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-accent hover:border-accent/60 hover:bg-accent/10 hover:text-accent-soft transition-colors text-sm font-medium tracking-wide"
+        >
+          Let's Talk
+        </button>
+      </motion.div>
+
+      {/* Scroll cue */}
+      <div className="hidden md:flex absolute bottom-12 left-6 lg:left-10 flex-col items-center gap-2 text-gray-600 z-10">
+        <span className="text-[10px] tracking-[0.25em] uppercase">Scroll</span>
+        <span className="text-lg animate-bounce-y">↓</span>
+      </div>
     </section>
   )
 }

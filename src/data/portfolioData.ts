@@ -1,7 +1,8 @@
 export const personalInfo = {
   name: "Vivek Singh Bhadauria",
   role: "Frontend Developer",
-  tagline: "Building secure, scalable, and high-performance web experiences.",
+  tagline:
+    "Building secure, scalable, and high-performance web and mobile applications with 4.7+ years of experience across React.js, React Native, TypeScript, and Redux.",
   email: "vivek6448@gmail.com",
   phone: "+91-8468857141",
   location: "New Delhi, India",
