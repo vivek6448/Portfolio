@@ -26,8 +26,22 @@
   justify-content: space-between;
   padding: 2em;
   background: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   pointer-events: none;
   z-index: 20;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    backdrop-filter 0.4s ease;
+}
+
+.staggered-menu-header.is-scrolled {
+  background: rgba(10, 10, 12, 0.7);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .staggered-menu-header > * {

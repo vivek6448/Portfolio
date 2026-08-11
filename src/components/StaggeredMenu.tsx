@@ -61,6 +61,7 @@ export default function StaggeredMenu({
   onMenuClose,
 }: StaggeredMenuProps) {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const openRef = useRef(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const preLayersRef = useRef<HTMLDivElement>(null)
@@ -392,6 +393,17 @@ export default function StaggeredMenu({
     }
   }, [closeOnClickAway, open, closeMenu])
 
+  // Header is transparent at the top of the page; once scrolled it picks up
+  // a blurred backdrop so it stays legible over whatever content is beneath
+  // it. Suppressed while the panel is open, since the panel already has its
+  // own solid background sitting right behind the header there.
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <div
       className={(className ? className + ' ' : '') + 'staggered-menu-wrapper' + (isFixed ? ' fixed-wrapper' : '')}
@@ -410,7 +422,10 @@ export default function StaggeredMenu({
           return arr.map((c, i) => <div key={i} className="sm-prelayer" style={{ background: c }} />)
         })()}
       </div>
-      <header className="staggered-menu-header" aria-label="Main navigation header">
+      <header
+        className={`staggered-menu-header${scrolled && !open ? ' is-scrolled' : ''}`}
+        aria-label="Main navigation header"
+      >
         <div className="sm-logo" aria-label="Logo">
           {logoUrl ? (
             <img
