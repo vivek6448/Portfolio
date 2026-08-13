@@ -114,4 +114,17 @@ export const projects: Project[] = [
       "Clean topic-wise navigation for quick lookup",
     ],
   },
+  {
+    title: "World Atlas",
+    stack: ["React.js", "Vite", "REST APIs"],
+    live: "https://world-atlas-sage-psi.vercel.app",
+    github: "https://github.com/vivek6448/world-atlas",
+    description:
+      "An interactive world atlas app for exploring countries and their details through a clean, fast React interface.",
+    highlights: [
+      "Built with React.js and Vite for a fast dev experience",
+      "Interactive browsing of countries and regions",
+      "Responsive UI across devices",
+    ],
+  },
 ]
