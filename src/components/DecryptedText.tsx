@@ -56,12 +56,28 @@ export default function DecryptedText({
   clickMode = 'once',
   ...props
 }: DecryptedTextProps) {
-  const [displayText, setDisplayText] = useState(text)
+  const [displayText, setDisplayText] = useState(() => {
+    if (animateOn !== 'click') return text
+    // Mirrors shuffleText/availableChars below, inlined: those are defined via
+    // hooks further down and aren't available yet inside this lazy initializer.
+    const chars = useOriginalCharsOnly
+      ? Array.from(new Set(text.split(''))).filter(char => char !== ' ')
+      : characters.split('')
+    return text
+      .split('')
+      .map(char => (char === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]))
+      .join('')
+  })
   const [isAnimating, setIsAnimating] = useState(false)
   const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set())
   const [hasAnimated, setHasAnimated] = useState(false)
   const [isDecrypted, setIsDecrypted] = useState(animateOn !== 'click')
   const [direction, setDirection] = useState<'forward' | 'reverse'>('forward')
+  // Tracks the animateOn/text this component last synced state for, so the
+  // reset-on-change block below (after encryptInstantly is defined) can tell
+  // a genuine prop change from a same-render re-invocation.
+  const [prevAnimateOn, setPrevAnimateOn] = useState(animateOn)
+  const [prevText, setPrevText] = useState(text)
 
   const containerRef = useRef<HTMLSpanElement>(null)
   const orderRef = useRef<number[]>([])
@@ -139,6 +155,24 @@ export default function DecryptedText({
     setDisplayText(shuffleText(text, emptySet))
     setIsDecrypted(false)
   }, [text, shuffleText])
+
+  // Resets display state when `animateOn`/`text` actually change (not on
+  // mount — the initial state above already accounts for that). Adjusting
+  // state during render like this, gated on a prev-value comparison, avoids
+  // the extra render pass (and the visible flash) that doing this in a
+  // useEffect would cause: https://react.dev/learn/you-might-not-need-an-effect
+  if (animateOn !== prevAnimateOn || text !== prevText) {
+    setPrevAnimateOn(animateOn)
+    setPrevText(text)
+    if (animateOn === 'click') {
+      encryptInstantly()
+    } else {
+      setDisplayText(text)
+      setIsDecrypted(true)
+    }
+    setRevealedIndices(new Set())
+    setDirection('forward')
+  }
 
   const triggerDecrypt = useCallback(() => {
     if (sequential) {
@@ -365,18 +399,6 @@ export default function DecryptedText({
       }
     }
   }, [animateOn, hasAnimated, triggerDecrypt])
-
-  useEffect(() => {
-    if (animateOn === 'click') {
-      encryptInstantly()
-    } else {
-      setDisplayText(text)
-      setIsDecrypted(true)
-    }
-    setRevealedIndices(new Set())
-    setDirection('forward')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animateOn, text, encryptInstantly])
 
   const animateProps =
     animateOn === 'hover' || animateOn === 'inViewHover'

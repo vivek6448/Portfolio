@@ -38,7 +38,7 @@ export default function Skills() {
   const prefersReducedMotion = usePrefersReducedMotion()
 
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6 bg-white/[0.02]">
+    <section className="py-16 md:py-24 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         <SectionHeading title="Technical Skills" subtitle="What I know" />
 

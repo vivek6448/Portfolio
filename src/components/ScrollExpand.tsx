@@ -1,5 +1,5 @@
 // Ported from https://reactbits.dev (ScrollExpand-JS-CSS) to TypeScript.
-import { useCallback, useEffect, useRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
 
 import './ScrollExpand.css'
 
@@ -82,24 +82,26 @@ const ScrollExpand = ({
     useWindowScroll,
     enabled,
   })
-  propsRef.current = {
-    startWidth,
-    startHeight,
-    startRadius,
-    endRadius,
-    mediaZoom,
-    scrollDistance,
-    holdDistance,
-    smoothing,
-    overlayScrim,
-    useWindowScroll,
-    enabled,
-  }
+  useLayoutEffect(() => {
+    propsRef.current = {
+      startWidth,
+      startHeight,
+      startRadius,
+      endRadius,
+      mediaZoom,
+      scrollDistance,
+      holdDistance,
+      smoothing,
+      overlayScrim,
+      useWindowScroll,
+      enabled,
+    }
+  })
 
   const applyProgress = useCallback((p: number) => {
     const frame = frameRef.current
     const media = mediaRef.current
-    if (!frame || !media) return
+    if (!frame) return
     const c = propsRef.current
 
     const e = smoothstep(0, 1, p)
@@ -111,7 +113,7 @@ const ScrollExpand = ({
     const r = c.startRadius + (c.endRadius - c.startRadius) * e
     frame.style.clipPath = `inset(${iy}% ${ix}% ${iy}% ${ix}% round ${r}px)`
 
-    media.style.transform = `scale(${c.mediaZoom + (1 - c.mediaZoom) * e})`
+    if (media) media.style.transform = `scale(${c.mediaZoom + (1 - c.mediaZoom) * e})`
 
     if (scrimRef.current) scrimRef.current.style.opacity = `${c.overlayScrim * e}`
 
@@ -224,8 +226,9 @@ const ScrollExpand = ({
     }
   }, [applyProgress, useWindowScroll])
 
-  const media =
-    mediaType === 'video' ? (
+  const media = !src
+    ? null
+    : mediaType === 'video' ? (
       <video
         ref={mediaRef as React.RefObject<HTMLVideoElement>}
         className="scroll-expand__media"

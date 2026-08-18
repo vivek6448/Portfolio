@@ -69,7 +69,7 @@ export default function Projects() {
   const prefersReducedMotion = usePrefersReducedMotion()
 
   return (
-    <section className="py-16 md:py-24 bg-white/[0.02]">
+    <section className="py-16 md:py-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <SectionHeading title="Selected Projects" subtitle="Featured Work" />
 

@@ -19,6 +19,22 @@ export default defineConfig({
           if (id.includes('node_modules/framer-motion')) {
             return 'framer'
           }
+          if (
+            id.includes('node_modules/three') ||
+            id.includes('node_modules/@react-three') ||
+            id.includes('node_modules/postprocessing') ||
+            id.includes('node_modules/n8ao') ||
+            id.includes('node_modules/troika') ||
+            id.includes('node_modules/camera-controls') ||
+            id.includes('node_modules/maath') ||
+            id.includes('node_modules/meshline') ||
+            id.includes('node_modules/zustand') ||
+            id.includes('node_modules/its-fine') ||
+            id.includes('node_modules/stats-gl') ||
+            id.includes('node_modules/@monogrid')
+          ) {
+            return 'three'
+          }
           if (id.includes('node_modules/@emailjs')) {
             return 'emailjs'
           }

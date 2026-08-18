@@ -23,17 +23,6 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-end overflow-hidden px-4 sm:px-6 lg:px-10 pt-32 sm:pt-36 pb-28 md:pb-36">
-      {/* Glow blob — flares bright on mount, then settles to an ambient level */}
-      <motion.div
-        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[70vw] h-[70vw] max-w-[700px] max-h-[700px] bg-accent rounded-full blur-[140px]"
-        initial={reduced ? { opacity: 0.35, scale: 1 } : { opacity: 0, scale: 0.55 }}
-        animate={reduced ? { opacity: 0.35, scale: 1 } : { opacity: [0, 1, 0.35], scale: [0.55, 1.2, 1] }}
-        transition={reduced ? { duration: 0 } : { duration: 1.8, times: [0, 0.4, 1], ease: [0.16, 1, 0.3, 1] }}
-      />
-
-      {/* Bottom vignette so the glow eases into the base background instead of hard-cutting at the section boundary */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 sm:h-80 bg-gradient-to-b from-transparent to-bg" />
-
       {/* Location / availability — pinned under the navbar */}
       <motion.p
         initial={reduced ? 'show' : 'hidden'}
