@@ -87,6 +87,22 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    title: "DotKnot — Apparel E-Commerce",
+    stack: ["React.js", "Vite", "Supabase", "Tailwind CSS"],
+    live: "https://dot-knot.vercel.app",
+    github: "https://github.com/vivek6448",
+    description:
+      "A production e-commerce storefront for DotKnot, an embroidered-apparel brand — built end-to-end as a freelance engagement for a real client, from product catalog to cart and checkout.",
+    highlights: [
+      "Category filtering (T-Shirts, Hoodies, Sweatshirts, Lower) and live product search",
+      "Supabase-backed auth, product catalog, and cart",
+      "One-tap \"Add to Cart\" straight from the Trending Now product grid",
+      "First-order discount modal to drive conversions on entry",
+      "WhatsApp and Instagram integration for customer support and social reach",
+      "Shipping, refunds, and size-guide policy pages for a live retail operation",
+    ],
+  },
+  {
     title: "Zaptro — E-Commerce App",
     stack: ["React.js", "Redux", "REST APIs", "React Router"],
     live: "https://ecommerce-frontend-r394.vercel.app",
@@ -96,6 +112,8 @@ export const projects: Project[] = [
     highlights: [
       "RBAC + protected admin routes",
       "Axios REST API integration with error-boundary handling",
+      "Auto-rotating hero carousel and 16-category product catalog (beauty, electronics, fashion, and more)",
+      "Cart, checkout, and newsletter signup wired into the shopping flow",
       "30% reduction in unnecessary re-renders via React.memo & useMemo",
       "Unit tests with Jest and React Testing Library",
     ],
@@ -108,9 +126,11 @@ export const projects: Project[] = [
     description:
       "A bilingual (English + Hinglish) study reference covering React, JavaScript, and TypeScript — with clear explanations and real code examples for each concept.",
     highlights: [
-      "Covers React, JavaScript, and TypeScript in one place",
+      "164 interview questions across 25 topics spanning JS Core, Closures, Async, Hooks, Performance, and TypeScript",
       "Bilingual content in English & Hinglish for accessibility",
+      "Theory/Coding view toggle plus instant search across every topic",
       "Code examples alongside every concept",
+      "Per-question progress tracker to resume study where you left off",
       "Clean topic-wise navigation for quick lookup",
     ],
   },
@@ -123,7 +143,9 @@ export const projects: Project[] = [
       "An interactive world atlas app for exploring countries and their details through a clean, fast React interface.",
     highlights: [
       "Built with React.js and Vite for a fast dev experience",
+      "Cinematic scroll-driven hero with a circular country image gallery",
       "Interactive browsing of countries and regions",
+      "Per-country pages with flag, key facts, and story details",
       "Responsive UI across devices",
     ],
   },

@@ -1,22 +1,16 @@
-import { motion } from 'framer-motion'
 import { projects, type Project } from '../data/portfolioData'
 import { SectionHeading } from './About'
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa'
 import { W } from './GlowText'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import ScrollStack, { ScrollStackItem } from './ScrollStack'
 
-function ProjectCard({ project, index, prefersReducedMotion }: { project: Project; index: number; prefersReducedMotion: boolean }) {
+function ProjectCardContent({ project }: { project: Project }) {
   return (
-    <motion.div
-      initial={prefersReducedMotion ? { y: 0, opacity: 1 } : { y: 40, opacity: 0 }}
-      whileInView={{ y: 0, opacity: 1 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={prefersReducedMotion ? {} : { type: 'spring', stiffness: 110, damping: 15, delay: index * 0.08 }}
-      className="group w-full max-w-[380px] sm:w-[420px] p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 flex flex-col"
-    >
+    <div className="group h-full flex flex-col p-6 sm:p-8">
       {/* Title + Links */}
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-white font-bold text-base sm:text-lg"><W text={project.title} /></h3>
+        <h3 className="text-white font-bold text-lg sm:text-xl"><W text={project.title} /></h3>
         <div className="flex gap-3 text-gray-500 shrink-0 ml-2">
           <a href={project.github} target="_blank" rel="noreferrer"
             className="hover:text-white transition-colors" aria-label="GitHub">
@@ -61,7 +55,25 @@ function ProjectCard({ project, index, prefersReducedMotion }: { project: Projec
       >
         View Project <span className="transition-transform group-hover:translate-x-1">↗</span>
       </a>
-    </motion.div>
+    </div>
+  )
+}
+
+// Static fallback grid for prefers-reduced-motion — ScrollStack's pin/scale
+// effect is purely scroll-driven motion, so reduced-motion users get the
+// plain card layout instead.
+function ProjectGrid() {
+  return (
+    <div className="flex flex-wrap justify-center gap-5 sm:gap-6 mt-10 md:mt-12">
+      {projects.map(project => (
+        <div
+          key={project.title}
+          className="w-full max-w-[380px] sm:w-[420px] rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 transition-colors duration-300"
+        >
+          <ProjectCardContent project={project} />
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -73,16 +85,27 @@ export default function Projects() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <SectionHeading title="Selected Projects" subtitle="Featured Work" />
 
-        <div className="flex flex-wrap justify-center gap-5 sm:gap-6 mt-10 md:mt-12">
-          {projects.map((project, i) => (
-            <ProjectCard
-              key={project.title}
-              project={project}
-              index={i}
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          ))}
-        </div>
+        {prefersReducedMotion ? (
+          <ProjectGrid />
+        ) : (
+          <div className="mt-10 md:mt-12 h-[75vh] sm:h-[80vh] max-h-[820px] rounded-[1.75rem] border border-white/10 bg-white/[0.02]">
+            <ScrollStack
+              className="rounded-[1.75rem]"
+              itemDistance={120}
+              itemScale={0.045}
+              itemStackDistance={36}
+              stackPosition="16%"
+              scaleEndPosition="8%"
+              baseScale={0.86}
+            >
+              {projects.map(project => (
+                <ScrollStackItem key={project.title}>
+                  <ProjectCardContent project={project} />
+                </ScrollStackItem>
+              ))}
+            </ScrollStack>
+          </div>
+        )}
       </div>
     </section>
   )
