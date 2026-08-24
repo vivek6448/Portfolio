@@ -1,9 +1,18 @@
+import { useState } from 'react'
 import { projects, type Project } from '../data/portfolioData'
 import { SectionHeading } from './About'
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa'
 import { W } from './GlowText'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
-import ScrollStack, { ScrollStackItem } from './ScrollStack'
+import MagicBento, { type BentoCardData } from './MagicBento'
+import ProjectModal from './ProjectModal'
+
+const bentoItems: BentoCardData[] = projects.map(project => ({
+  title: project.title.split(' — ')[0],
+  description: project.description,
+  meta: `${project.type} | ${project.stack.join(', ')}`,
+  image: project.image,
+}))
 
 function ProjectCardContent({ project }: { project: Project }) {
   return (
@@ -59,9 +68,9 @@ function ProjectCardContent({ project }: { project: Project }) {
   )
 }
 
-// Static fallback grid for prefers-reduced-motion — ScrollStack's pin/scale
-// effect is purely scroll-driven motion, so reduced-motion users get the
-// plain card layout instead.
+// Static fallback grid for prefers-reduced-motion — MagicBento's tilt,
+// magnetism, and particle effects are purely decorative motion, so
+// reduced-motion users get the plain card layout instead.
 function ProjectGrid() {
   return (
     <div className="flex flex-wrap justify-center gap-5 sm:gap-6 mt-10 md:mt-12">
@@ -79,6 +88,7 @@ function ProjectGrid() {
 
 export default function Projects() {
   const prefersReducedMotion = usePrefersReducedMotion()
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   return (
     <section className="py-16 md:py-24">
@@ -88,25 +98,26 @@ export default function Projects() {
         {prefersReducedMotion ? (
           <ProjectGrid />
         ) : (
-          <div className="mt-10 md:mt-12 h-[75vh] sm:h-[80vh] max-h-[820px] rounded-[1.75rem] border border-white/10 bg-white/[0.02]">
-            <ScrollStack
-              className="rounded-[1.75rem]"
-              itemDistance={120}
-              itemScale={0.045}
-              itemStackDistance={36}
-              stackPosition="16%"
-              scaleEndPosition="8%"
-              baseScale={0.86}
-            >
-              {projects.map(project => (
-                <ScrollStackItem key={project.title}>
-                  <ProjectCardContent project={project} />
-                </ScrollStackItem>
-              ))}
-            </ScrollStack>
+          <div className="mt-10 md:mt-12">
+            <MagicBento
+              items={bentoItems}
+              textAutoHide
+              enableStars
+              enableSpotlight
+              enableBorderGlow
+              enableTilt
+              enableMagnetism
+              clickEffect
+              spotlightRadius={300}
+              particleCount={10}
+              glowColor="226, 69, 43"
+              onItemClick={(_, index) => setSelectedProject(projects[index])}
+            />
           </div>
         )}
       </div>
+
+      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </section>
   )
 }

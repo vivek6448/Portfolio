@@ -1,8 +1,8 @@
 export const personalInfo = {
   name: "Vivek Singh Bhadauria",
-  role: "Frontend Developer",
+  role: "Full Stack Developer",
   tagline:
-    "Building secure, scalable, and high-performance web and mobile applications with 4.7+ years of experience across React.js, React Native, TypeScript, and Redux.",
+    "Building secure, scalable, and high-performance web and mobile applications with 4.7+ years of experience across React.js, Node.js, React Native, TypeScript, and Redux.",
   email: "vivek6448@gmail.com",
   phone: "+91-8468857141",
   location: "New Delhi, India",
@@ -12,13 +12,13 @@ export const personalInfo = {
 }
 
 export const skills: Record<string, string[]> = {
-  "Languages & Frameworks": ["JavaScript (ES6+)", "TypeScript", "React.js", "React Native", "Redux", "jQuery"],
-  "Frontend & Styling": ["HTML5", "CSS3", "Tailwind CSS", "Bootstrap", "Material UI", "Responsive Design", "WCAG"],
-  "APIs & Data": ["RESTful APIs", "Axios", "Fetch API", "LLM Integration", "Prompt Engineering"],
+  "Languages & Frameworks": ["JavaScript (ES6+)", "TypeScript", "React.js", "Node.js", "React Native", "Redux", "jQuery"],
+  "Frontend & Styling": ["HTML5", "CSS3", "Tailwind CSS", "Bootstrap", "Material UI", "Responsive Design", "WCAG 2.1 Accessibility"],
+  "APIs & Data": ["RESTful APIs", "CRUD Operations", "JSON", "Axios", "Fetch API", "LLM Integration", "Prompt Engineering"],
   "Databases": ["MongoDB", "MySQL"],
-  "Testing": ["Jest", "React Testing Library", "Chrome DevTools"],
-  "Auth & Security": ["RBAC", "Protected Routes", "OAuth 2.0"],
-  "DevOps & Tools": ["Git", "GitHub", "Webpack", "Vite", "CI/CD", "Jira", "Agile Scrum"],
+  "Testing": ["Jest", "React Testing Library", "Playwright (E2E & Visual Regression)", "Storybook", "Cross-Browser Testing", "Chrome DevTools"],
+  "Auth & Security": ["Role-Based Access Control (RBAC)", "Protected Routes", "OAuth 2.0", "Secure UI Workflows"],
+  "DevOps & Tools": ["Git", "GitHub", "VS Code", "Webpack", "Vite", "CI/CD Pipelines", "Jira", "Agile (Scrum)"],
 }
 
 export interface Experience {
@@ -48,23 +48,8 @@ export const experiences: Experience[] = [
   {
     company: "Tata Consultancy Services (TCS)",
     role: "Frontend Developer",
-    project: "Client: Indian Air Force",
-    duration: "Feb 2022 – Sep 2025",
-    location: "Gurugram",
-    points: [
-      "Migrated legacy JSP app to React.js + TypeScript, improving performance by 30%.",
-      "Optimized app using Redux, lazy loading, React.memo, useMemo — reducing load times by 25%.",
-      "Implemented WCAG-compliant accessible UI for classified government systems.",
-      "Implemented RBAC and protected routes for secure classified modules.",
-      "Collaborated with UI/UX designers using Figma for pixel-perfect components.",
-      "Wrote unit tests using Jest and React Testing Library.",
-    ],
-  },
-  {
-    company: "Tata Consultancy Services (TCS)",
-    role: "Frontend Developer",
     project: "Client: American Express",
-    duration: "May 2021 – Feb 2022",
+    duration: "Feb 2023 – Sep 2025",
     location: "Gurugram",
     points: [
       "Built secure internal support dashboard with React.js for background job management.",
@@ -74,23 +59,43 @@ export const experiences: Experience[] = [
       "Integrated REST APIs for CRUD and real-time job monitoring.",
     ],
   },
+  {
+    company: "Tata Consultancy Services (TCS)",
+    role: "Full Stack Developer",
+    project: "Client: Indian Air Force",
+    duration: "May 2021 – Feb 2023",
+    location: "Gurugram",
+    points: [
+      "Migrated legacy JSP app to React.js + TypeScript, improving performance by 30%.",
+      "Built and maintained backend services and RESTful APIs using Node.js for classified module workflows.",
+      "Optimized app using Redux, lazy loading, React.memo, useMemo — reducing load times by 25%.",
+      "Implemented WCAG-compliant accessible UI for classified government systems.",
+      "Implemented RBAC and protected routes for secure classified modules.",
+      "Collaborated with UI/UX designers using Figma for pixel-perfect components.",
+      "Wrote unit tests using Jest and React Testing Library.",
+    ],
+  },
 ]
 
 export interface Project {
   title: string
+  type: "Frontend" | "Fullstack"
   stack: string[]
   live: string
   github: string
   description: string
   highlights: string[]
+  image?: string
 }
 
 export const projects: Project[] = [
   {
     title: "DotKnot — Apparel E-Commerce",
+    type: "Fullstack",
     stack: ["React.js", "Vite", "Supabase", "Tailwind CSS"],
     live: "https://dot-knot.vercel.app",
     github: "https://github.com/vivek6448",
+    image: "/projects/dotknot.webp",
     description:
       "A production e-commerce storefront for DotKnot, an embroidered-apparel brand — built end-to-end as a freelance engagement for a real client, from product catalog to cart and checkout.",
     highlights: [
@@ -104,25 +109,29 @@ export const projects: Project[] = [
   },
   {
     title: "Zaptro — E-Commerce App",
+    type: "Frontend",
     stack: ["React.js", "Redux", "REST APIs", "React Router"],
     live: "https://ecommerce-frontend-r394.vercel.app",
     github: "https://github.com/vivek6448",
+    image: "/projects/zaptro.webp",
     description:
-      "Full-featured e-commerce frontend with product listings, cart management, and a secure admin dashboard built with React.js and Redux.",
+      "Full-featured e-commerce frontend with product listings, detail views, cart management, and a secure admin dashboard built with React.js and Redux.",
     highlights: [
-      "RBAC + protected admin routes",
+      "RBAC + protected admin routes, including background operation management",
       "Axios REST API integration with error-boundary handling",
       "Auto-rotating hero carousel and 16-category product catalog (beauty, electronics, fashion, and more)",
       "Cart, checkout, and newsletter signup wired into the shopping flow",
-      "30% reduction in unnecessary re-renders via React.memo & useMemo",
+      "30% reduction in unnecessary re-renders via React.memo, useMemo & conditional rendering",
       "Unit tests with Jest and React Testing Library",
     ],
   },
   {
     title: "Dev Study Notes",
+    type: "Frontend",
     stack: ["React.js", "React Router", "TypeScript"],
     live: "https://study-five-delta.vercel.app",
     github: "https://github.com/vivek6448",
+    image: "/projects/dev-study-notes.webp",
     description:
       "A bilingual (English + Hinglish) study reference covering React, JavaScript, and TypeScript — with clear explanations and real code examples for each concept.",
     highlights: [
@@ -136,9 +145,11 @@ export const projects: Project[] = [
   },
   {
     title: "World Atlas",
+    type: "Frontend",
     stack: ["React.js", "Vite", "REST APIs"],
     live: "https://world-atlas-sage-psi.vercel.app",
     github: "https://github.com/vivek6448/world-atlas",
+    image: "/projects/world-atlas.webp",
     description:
       "An interactive world atlas app for exploring countries and their details through a clean, fast React interface.",
     highlights: [

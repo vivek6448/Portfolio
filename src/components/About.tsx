@@ -40,16 +40,16 @@ export default function About() {
             className="flex flex-col gap-6 order-1"
           >
             <p className="text-gray-400 leading-relaxed">
-              Frontend Developer with{' '}
+              Full Stack Developer with{' '}
               <span className="text-accent font-semibold">4.7+ years</span> of experience
-              building secure, scalable, and high-performance web and mobile applications
-              using React.js, React Native, TypeScript, and Redux.
+              designing and building secure, scalable, high-performance web and mobile
+              applications using React.js, Node.js, React Native, TypeScript, and Redux.
             </p>
             <p className="text-gray-400 leading-relaxed">
-              Proven track record in <span className="text-white font-medium">government</span>{' '}
+              Proven track record delivering <span className="text-white font-medium">government</span>{' '}
               and <span className="text-white font-medium">fintech</span> platforms with
-              expertise in frontend architecture, REST API integration, responsive design,
-              RBAC, performance optimization, unit testing, and CI/CD workflows.
+              expertise in frontend architecture, backend API development, REST API integration,
+              responsive UI design, RBAC, performance optimization, unit testing, and CI/CD pipelines.
             </p>
             <p className="text-gray-400 leading-relaxed">
               Skilled in <span className="text-accent font-semibold">prompt engineering</span>{' '}
