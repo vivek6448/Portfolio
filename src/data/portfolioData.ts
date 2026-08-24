@@ -94,7 +94,7 @@ export const projects: Project[] = [
     type: "Fullstack",
     stack: ["React.js", "Vite", "Supabase", "Tailwind CSS"],
     live: "https://dot-knot.vercel.app",
-    github: "https://github.com/vivek6448",
+    github: "https://github.com/vivek6448/DotKnot",
     image: "/projects/dotknot.webp",
     description:
       "A production e-commerce storefront for DotKnot, an embroidered-apparel brand — built end-to-end as a freelance engagement for a real client, from product catalog to cart and checkout.",
@@ -112,7 +112,7 @@ export const projects: Project[] = [
     type: "Frontend",
     stack: ["React.js", "Redux", "REST APIs", "React Router"],
     live: "https://ecommerce-frontend-r394.vercel.app",
-    github: "https://github.com/vivek6448",
+    github: "https://github.com/vivek6448/Ecommerce-Frontend/tree/main/zaptro",
     image: "/projects/zaptro.webp",
     description:
       "Full-featured e-commerce frontend with product listings, detail views, cart management, and a secure admin dashboard built with React.js and Redux.",
@@ -130,7 +130,7 @@ export const projects: Project[] = [
     type: "Frontend",
     stack: ["React.js", "React Router", "TypeScript"],
     live: "https://study-five-delta.vercel.app",
-    github: "https://github.com/vivek6448",
+    github: "https://github.com/vivek6448/Study",
     image: "/projects/dev-study-notes.webp",
     description:
       "A bilingual (English + Hinglish) study reference covering React, JavaScript, and TypeScript — with clear explanations and real code examples for each concept.",
